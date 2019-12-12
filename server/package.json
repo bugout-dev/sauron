@@ -1,0 +1,26 @@
+{
+  "name": "sauron",
+  "version": "0.1.0",
+  "description": "Sauron server - wraps the Kubernetes API to provide access to Kuberenetes ConfigMaps and Secrets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simiotics/sauron.git"
+  },
+  "author": "neeraj",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/simiotics/sauron/issues"
+  },
+  "homepage": "https://github.com/simiotics/sauron#readme",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.11.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
