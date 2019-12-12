@@ -18,6 +18,7 @@
   "homepage": "https://github.com/simiotics/sauron#readme",
   "dependencies": {
     "@kubernetes/client-node": "^0.11.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1"
   },
   "devDependencies": {

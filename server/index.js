@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const k8s = require('@kubernetes/client-node');
 
@@ -5,6 +6,8 @@ const mappings = require('./mappings.js');
 
 const app = express();
 const port = 1729;
+
+app.use(cors());
 
 // Generate Kubernetes API client based on the SAURON_ENV environment variable.
 // The valid values for SAURON_ENV are:
@@ -27,7 +30,12 @@ const kc = new k8s.KubeConfig();
 VALID_SAURON_ENV[SAURON_ENV](kc);
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
-app.get('/', (req, res) => res.send('Hello World!'));
+// Expose UI as static files served from SAURON_UI_BUILD directory
+const SAURON_UI_BUILD = process.env.SAURON_UI_BUILD;
+if (SAURON_UI_BUILD) {
+    console.info(`Serving UI at / from: ${SAURON_UI_BUILD}`)
+    app.use(express.static(SAURON_UI_BUILD));
+}
 
 app.get('/namespaces', (req, res) => {
     k8sApi.listNamespace()
