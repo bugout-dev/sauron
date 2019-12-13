@@ -151,9 +151,17 @@ class ConfigMap extends React.Component {
     }
 
     configMapValueUpdater = (key) => {
-        const updater= (event) => {
-
+        const updater = (event) => {
+            if (this.state.configMap) {
+                const configMap = this.state.configMap;
+                if (!configMap.data) {
+                    configMap.data = {};
+                }
+                configMap.data[key] = event.target.value;
+                this.setState({configMap});
+            }
         }
+        return updater;
     }
 
     inputUpdater = (key) => {
@@ -235,7 +243,7 @@ class ConfigMap extends React.Component {
             return (
                 <li key={`${this.state.namespace}.${this.state.name}.${key}`}>
                     {key}: <br/>
-                    <textarea className="u-full-width" defaultValue={this.state.configMap.data[key]} />
+                    <textarea className="u-full-width" value={this.state.configMap.data[key]} onChange={this.configMapValueUpdater(key)} />
                 </li>
             )
         });
@@ -281,7 +289,7 @@ class ConfigMap extends React.Component {
                     </div>
                     <div className="row">
                         <div className="two columns">
-                            <input type="button" className="u-full-width button-primary" id="addConfigMapDataButton" value="Add" onClick={this.addNewDataInMemory} />
+                            <input type="button" className="u-full-width" id="addConfigMapDataButton" value="Add" onClick={this.addNewDataInMemory} />
                         </div>
                     </div>
                 </form>

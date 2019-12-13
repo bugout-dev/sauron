@@ -154,8 +154,16 @@ class Secret extends React.Component {
 
     secretValueUpdater = (key) => {
         const updater= (event) => {
-
+            if (this.state.secret) {
+                const secret = this.state.secret;
+                if (!secret.data) {
+                    secret.data = {};
+                }
+                secret.data[key] = btoa(event.target.value);
+                this.setState({secret});
+            }
         }
+        return updater;
     }
 
     inputUpdater = (key) => {
@@ -237,7 +245,7 @@ class Secret extends React.Component {
             return (
                 <li key={`${this.state.namespace}.${this.state.name}.${key}`}>
                     {key}: <br/>
-                    <textarea className="u-full-width" defaultValue={atob(this.state.secret.data[key])} />
+                    <textarea className="u-full-width" value={atob(this.state.secret.data[key])} onChange={this.secretValueUpdater(key)} />
                 </li>
             )
         });
@@ -283,7 +291,7 @@ class Secret extends React.Component {
                     </div>
                     <div className="row">
                         <div className="two columns">
-                            <input type="button" className="u-full-width button-primary" id="addSecretDataButton" value="Add" onClick={this.addNewDataInMemory} />
+                            <input type="button" className="u-full-width" id="addSecretDataButton" value="Add" onClick={this.addNewDataInMemory} />
                         </div>
                     </div>
                 </form>
