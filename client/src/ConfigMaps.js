@@ -202,7 +202,7 @@ class ConfigMap extends React.Component {
             this.setState({configMap, message: ''});
         })
         .catch(err => {
-            this.setState({message: `Error retrieving Kubernetes configMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
+            this.setState({message: `Error replacing Kubernetes ConfigMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
         });
     }
 
@@ -223,7 +223,7 @@ class ConfigMap extends React.Component {
             this.setState({configMap, message: ''});
         })
         .catch(err => {
-            this.setState({message: `Error retrieving Kubernetes configMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
+            this.setState({message: `Error retrieving Kubernetes ConfigMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
         });
     }
 
