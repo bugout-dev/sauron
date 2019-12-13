@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {NAMESPACE, SECRETS, CONFIGMAP} from './displays';
+import {NAMESPACE, SECRETS, CONFIGMAPS} from './displays';
 
 import './css/normalize.css';
 import './css/skeleton.css';
@@ -120,7 +120,7 @@ class Namespace extends React.Component {
         return (
             <div className="container" id="namespaces-list">
                 <ul>
-                    <li><a href="#">ConfigMaps</a></li>
+                    <li><a href="#" onClick={this.transitioner(CONFIGMAPS)}>ConfigMaps</a></li>
                     <li><a href="#" onClick={this.transitioner(SECRETS)}>Secrets</a></li>
                 </ul>
                 <div className="row">

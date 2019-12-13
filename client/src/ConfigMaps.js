@@ -1,18 +1,17 @@
 import React from 'react';
 
-import {SECRET} from './displays';
+import {CONFIGMAP} from './displays';
 
 import './css/normalize.css';
 import './css/skeleton.css';
 
-class SecretsList extends React.Component {
+class ConfigMapsList extends React.Component {
     state = {
         server: process.env.REACT_APP_SAURON_SERVER || '',
         visible: false,
         namespace: null,
-        secrets: [],
+        configMaps: [],
         message: '',
-        newSecret: '',
     }
 
     /**
@@ -24,34 +23,15 @@ class SecretsList extends React.Component {
             this.setState({visible: this.props.visible});
         }
         if (this.props.namespace !== this.state.namespace) {
-            this.setState({namespace: this.props.namespace}, this.getSecrets);
+            this.setState({namespace: this.props.namespace}, this.getConfigMaps);
         }
-    }
-
-    updateNewSecret = (event) => {
-        this.setState({newSecret: event.target.value});
-    }
-
-    createNewSecret = () => {
-        const target = `${this.state.server}/namespaces/${this.state.namespace}/secrets`
-        fetch(target, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({name: this.state.newSecret})
-        })
-        .then(this.transitioner(this.state.newSecret))
-        .catch(err => {
-            this.setState({message: `Error creating new secret (${this.state.newSecret}): ${JSON.stringify(err, null, 4)}`})
-        })
     }
 
     /**
      * Get a list of namespaces on the Kubernetes cluster and store in state
      */
-    getSecrets = () => {
-        const target = `${this.state.server}/namespaces/${this.state.namespace}/secrets`
+    getConfigMaps = () => {
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/configMaps`
         fetch(target, {method: 'GET'})
         .then(response => {
             if (!response.ok) {
@@ -60,34 +40,34 @@ class SecretsList extends React.Component {
             return response.json();
         })
         .then(body => {
-            const secrets = body.map(secret => {
+            const configMaps = body.map(configMap => {
                 return {
-                    name: secret.name,
-                    namespace: secret.namespace,
-                    secretType: secret.secretyType,
+                    name: configMap.name,
+                    namespace: configMap.namespace,
+                    configMapType: configMap.configMapyType,
                 };
             })
-            this.setState({secrets});
+            this.setState({configMaps});
         })
         .catch(err => {
-            this.setState({message: `Error listing Kubernetes secrets for namespace=${this.state.namespace}: ${JSON.stringify(err, null, 4)}`})
+            this.setState({message: `Error listing Kubernetes configMaps for namespace=${this.state.namespace}: ${err}`})
         });
     }
 
-    transitioner = (secretName) => {
+    transitioner = (configMapName) => {
         const displayContext = {
             namespace: this.state.namespace,
-            secret: secretName,
+            configMap: configMapName,
         }
-        const transition = () => this.props.transition(SECRET, displayContext);
+        const transition = () => this.props.transition(CONFIGMAP, displayContext);
         return transition;
     }
 
-    renderSecrets = () => {
-        return this.state.secrets.map((secret, i) => {
+    renderConfigMaps = () => {
+        return this.state.configMaps.map((configMap, i) => {
             return (
                 <li key={i}>
-                    <a href="#" onClick={this.transitioner(secret.name)}>{secret.name}</a>
+                    <a href="#" onClick={this.transitioner(configMap.name)}>{configMap.name}</a>
                 </li>
             )
         });
@@ -99,19 +79,9 @@ class SecretsList extends React.Component {
         }
 
         return (
-            <div className="container" id="secrets-list">
-                <form id="create-secret">
-                    <div className="row">
-                        <div className="nine columns" align="left">
-                            <input className="u-full-width" type="text" id="secretNameInput" onChange={this.updateNewSecret} />
-                        </div>
-                        <div className="three columns" align="left">
-                            <input type="button" className="u-full-width button-primary" id="createSecretButton" value="Create" onClick={this.createNewSecret} />
-                        </div>
-                    </div>
-                </form>
+            <div className="container" id="configMaps-list">
                 <ul>
-                    {this.renderSecrets()}
+                    {this.renderConfigMaps()}
                 </ul>
                 <div className="row">
                     <div className="twelve columns">
@@ -123,13 +93,13 @@ class SecretsList extends React.Component {
     }
 }
 
-class Secret extends React.Component {
+class ConfigMap extends React.Component {
     state = {
         server: process.env.REACT_APP_SAURON_SERVER || '',
         visible: false,
         namespace: null,
         name: null,
-        secret: {},
+        configMap: {},
         message: '',
     }
 
@@ -144,7 +114,7 @@ class Secret extends React.Component {
         if (this.props.namespace !== this.state.namespace || this.props.name !== this.state.name ) {
             this.setState({namespace: this.props.namespace, name: this.props.name}, () => {
                 if (this.props.name) {
-                    this.getSecret();
+                    this.getConfigMap();
                 }
             });
         }
@@ -153,8 +123,8 @@ class Secret extends React.Component {
     /**
      * Get a list of namespaces on the Kubernetes cluster and store in state
      */
-    getSecret = () => {
-        const target = `${this.state.server}/namespaces/${this.state.namespace}/secrets/${this.state.name}`;
+    getConfigMap = () => {
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/configMaps/${this.state.name}`;
         fetch(target, {method: 'GET'})
         .then(response => {
             if (!response.ok) {
@@ -163,28 +133,23 @@ class Secret extends React.Component {
             return response.json();
         })
         .then(body => {
-            let secret = body;
-            let decodedData = {};
-            Object.keys(body.data).forEach(key => {
-                decodedData[key] = atob(body.data[key]);
-            });
-            secret.data = decodedData;
-            this.setState({secret, message: ''});
+            let configMap = body;
+            this.setState({configMap, message: ''});
         })
         .catch(err => {
-            this.setState({message: `Error retrieving Kubernetes secret=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
+            this.setState({message: `Error retrieving Kubernetes configMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
         });
     }
 
-    renderSecret = () => {
-        if (!this.state.secret) {
+    renderConfigMap = () => {
+        if (!this.state.configMap) {
             return null;
         }
-        return Object.keys(this.state.secret.data || {}).map(key => {
+        return Object.keys(this.state.configMap.data || {}).map(key => {
             return (
                 <li key={`${this.state.namespace}.${this.state.name}.${key}`}>
                     {key}: <br/>
-                    <textarea className="u-full-width" defaultValue={this.state.secret.data[key]} />
+                    <textarea className="u-full-width" defaultValue={this.state.configMap.data[key]} />
                 </li>
             )
         });
@@ -196,9 +161,9 @@ class Secret extends React.Component {
         }
 
         return (
-            <div className="container" id="secrets-list">
+            <div className="container" id="configMaps-list">
                 <ul>
-                    {this.renderSecret()}
+                    {this.renderConfigMap()}
                 </ul>
                 <div className="row">
                     <div className="twelve columns">
@@ -210,4 +175,4 @@ class Secret extends React.Component {
     }
 }
 
-export {SecretsList, Secret};
+export {ConfigMapsList, ConfigMap};

@@ -1,3 +1,4 @@
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
 const k8s = require('@kubernetes/client-node');
@@ -8,6 +9,7 @@ const app = express();
 const port = 1729;
 
 app.use(cors());
+app.use(bodyParser.json());
 
 // Generate Kubernetes API client based on the SAURON_ENV environment variable.
 // The valid values for SAURON_ENV are:
@@ -46,7 +48,7 @@ app.get('/namespaces', (req, res) => {
             res.send(namespaces);
         })
         .catch(err => {
-            console.log(`Error retrieving namespaces from Kubernetes API: ${err}`);
+            console.log(`Error retrieving namespaces from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -61,7 +63,7 @@ app.get('/namespaces/:namespace/secrets', (req, res) => {
             res.send(secrets);
         })
         .catch(err => {
-            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -74,7 +76,23 @@ app.get('/namespaces/:namespace/secrets/:name', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            res.sendStatus(500);
+        });
+});
+
+app.post('/namespaces/:namespace/secrets', (req, res) => {
+    const {namespace} = req.params;
+    if (!req.body.name) {
+        return res.sendStatus(400);
+    }
+    k8sApi.createNamespacedSecret(namespace, {metadata: {name: req.body.name}})
+        .then(k8sResponse => k8sResponse.body)
+        .then(body => {
+            res.send(mappings.secret(body));
+        })
+        .catch(err => {
+            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -89,7 +107,20 @@ app.get('/namespaces/:namespace/configmaps', (req, res) => {
             res.send(configMaps);
         })
         .catch(err => {
-            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            res.sendStatus(500);
+        });
+});
+
+app.get('/namespaces/:namespace/configmaps/:name', (req, res) => {
+    const {namespace, name} = req.params;
+    k8sApi.readNamespacedConfigMap(name, namespace)
+        .then(k8sResponse => k8sResponse.body)
+        .then(body => {
+            res.send(mappings.configMap(body));
+        })
+        .catch(err => {
+            console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });

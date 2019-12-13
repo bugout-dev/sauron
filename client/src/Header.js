@@ -32,7 +32,9 @@ class Header extends React.Component {
         }
         return (
             <div className="twelve columns">
+                <h3>
                 / namespaces
+                </h3>
             </div>
         )
     }
@@ -43,8 +45,10 @@ class Header extends React.Component {
         }
         return (
             <div className="twelve columns">
+                <h3>
                 / <a href="#" onClick={this.transitioner(NAMESPACES)}>namespaces</a> {" "}
                 / {this.state.displayContext.namespace}
+                </h3>
             </div>
         )
     }
@@ -55,9 +59,11 @@ class Header extends React.Component {
         }
         return (
             <div className="twelve columns">
+                <h3>
                 / <a href="#" onClick={this.transitioner(NAMESPACES)}>namespaces</a> {" "}
                 / <a href="#" onClick={this.transitioner(NAMESPACE)}>{this.state.displayContext.namespace}</a> {" "}
                 / secrets
+                </h3>
             </div>
         )
     }
@@ -68,10 +74,43 @@ class Header extends React.Component {
         }
         return (
             <div className="twelve columns">
+                <h3>
                 / <a href="#" onClick={this.transitioner(NAMESPACES)}>namespaces</a> {" "}
                 / <a href="#" onClick={this.transitioner(NAMESPACE)}>{this.state.displayContext.namespace}</a> {" "}
                 / <a href="#" onClick={this.transitioner(SECRETS)}>secrets</a> {" "}
                 / {this.state.displayContext.secret}
+                </h3>
+            </div>
+        )
+    }
+
+    renderConfigMaps() {
+        if (this.state.display !== CONFIGMAPS) {
+            return null;
+        }
+        return (
+            <div className="twelve columns">
+                <h3>
+                / <a href="#" onClick={this.transitioner(NAMESPACES)}>namespaces</a> {" "}
+                / <a href="#" onClick={this.transitioner(NAMESPACE)}>{this.state.displayContext.namespace}</a> {" "}
+                / configMaps
+                </h3>
+            </div>
+        )
+    }
+
+    renderConfigMap() {
+        if (this.state.display !== CONFIGMAP) {
+            return null;
+        }
+        return (
+            <div className="twelve columns">
+                <h3>
+                / <a href="#" onClick={this.transitioner(NAMESPACES)}>namespaces</a> {" "}
+                / <a href="#" onClick={this.transitioner(NAMESPACE)}>{this.state.displayContext.namespace}</a> {" "}
+                / <a href="#" onClick={this.transitioner(CONFIGMAPS)}>configMaps</a> {" "}
+                / {this.state.displayContext.configMap}
+                </h3>
             </div>
         )
     }
@@ -84,6 +123,8 @@ class Header extends React.Component {
                         {this.renderNamespace()}
                         {this.renderSecrets()}
                         {this.renderSecret()}
+                        {this.renderConfigMaps()}
+                        {this.renderConfigMap()}
                 </div>
             </div>
         )

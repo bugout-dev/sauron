@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import {Header} from './Header';
 import {Namespace, NamespacesList} from './Namespaces';
 import {Secret, SecretsList} from './Secrets';
+import {ConfigMap, ConfigMapsList} from './ConfigMaps';
 import {NAMESPACES, NAMESPACE, CONFIGMAPS, CONFIGMAP, SECRETS, SECRET} from './displays';
 
 
@@ -28,6 +29,8 @@ class App extends React.Component {
                 <Namespace visible={this.state.display === NAMESPACE} transition={this.changeDisplay} name={this.state.displayContext.namespace} />
                 <SecretsList visible={this.state.display === SECRETS} transition={this.changeDisplay} namespace={this.state.displayContext.namespace} />
                 <Secret visible={this.state.display === SECRET} namespace={this.state.displayContext.namespace} name={this.state.displayContext.secret} />
+                <ConfigMapsList visible={this.state.display === CONFIGMAPS} transition={this.changeDisplay} namespace={this.state.displayContext.namespace} />
+                <ConfigMap visible={this.state.display === CONFIGMAP} namespace={this.state.displayContext.namespace} name={this.state.displayContext.configMap} />
             </div>
         )
     }
