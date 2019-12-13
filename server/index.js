@@ -48,7 +48,7 @@ app.get('/namespaces', (req, res) => {
             res.send(namespaces);
         })
         .catch(err => {
-            console.log(`Error retrieving namespaces from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.log(`Error retrieving namespaces from Kubernetes API: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -63,7 +63,7 @@ app.get('/namespaces/:namespace/secrets', (req, res) => {
             res.send(secrets);
         })
         .catch(err => {
-            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -76,7 +76,7 @@ app.get('/namespaces/:namespace/secrets/:name', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -92,7 +92,21 @@ app.post('/namespaces/:namespace/secrets', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error creating Secret (${name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error creating Secret (${name}) in namespace=${namespace}: ${err}`);
+            res.sendStatus(500);
+        });
+});
+
+app.put('/namespaces/:namespace/secrets/:name', (req, res) => {
+    const {namespace, name} = req.params;
+    console.log(req.body)
+    k8sApi.replaceNamespacedSecret(name, namespace, req.body)
+        .then(k8sResponse => k8sResponse.body)
+        .then(body => {
+            res.send(mappings.secret(body));
+        })
+        .catch(err => {
+            console.error(`Error replacing Secret (${name}) in namespace=${namespace}: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -107,7 +121,7 @@ app.get('/namespaces/:namespace/configmaps', (req, res) => {
             res.send(configMaps);
         })
         .catch(err => {
-            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -120,7 +134,7 @@ app.get('/namespaces/:namespace/configmaps/:name', (req, res) => {
             res.send(mappings.configMap(body));
         })
         .catch(err => {
-            console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${err}`);
             res.sendStatus(500);
         });
 });
@@ -136,7 +150,21 @@ app.post('/namespaces/:namespace/configmaps', (req, res) => {
             res.send(mappings.configMap(body));
         })
         .catch(err => {
-            console.error(`Error creating ConfigMap (${req.body.name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error creating ConfigMap (${req.body.name}) in namespace=${namespace}: ${err}`);
+            res.sendStatus(500);
+        });
+});
+
+app.put('/namespaces/:namespace/configmaps/:name', (req, res) => {
+    const {namespace, name} = req.params;
+    console.log(req.body)
+    k8sApi.replaceNamespacedConfigMap(name, namespace, req.body)
+        .then(k8sResponse => k8sResponse.body)
+        .then(body => {
+            res.send(mappings.configMap(body));
+        })
+        .catch(err => {
+            console.error(`Error replacing ConfigMap (${name}) in namespace=${namespace}: ${err}`);
             res.sendStatus(500);
         });
 });
