@@ -131,6 +131,8 @@ class Secret extends React.Component {
         name: null,
         secret: {},
         message: '',
+        newDataKey: '',
+        newDataValue: '',
     }
 
     /**
@@ -150,8 +152,64 @@ class Secret extends React.Component {
         }
     }
 
+    secretValueUpdater = (key) => {
+        const updater= (event) => {
+
+        }
+    }
+
+    inputUpdater = (key) => {
+        const updateStateKey = (event) => {
+            const update = {}
+            update[key] = event.target.value;
+            this.setState(update);
+        };
+        return updateStateKey;
+    }
+
+    addNewDataInMemory = () => {
+        if (this.state.secret) {
+            const secret = this.state.secret;
+            if (!secret.data) {
+                secret.data = {};
+            }
+            secret.data[this.state.newDataKey] = btoa(this.state.newDataValue);
+            this.setState({secret, newDataKey: '', newDataValue: ''});
+        }
+    }
+
+    replaceSecret = () => {
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/secrets/${this.state.name}`;
+        fetch(target, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                metadata: {
+                    namespace: this.state.namespace,
+                    name: this.state.name,
+                },
+                data: this.state.secret.data || {},
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw Error(response.statusText);
+            }
+            return response.json();
+        })
+        .then(body => {
+            let secret = body;
+            this.setState({secret, message: ''});
+        })
+        .catch(err => {
+            this.setState({message: `Error retrieving Kubernetes secret=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
+        });
+    }
+
     /**
-     * Get a list of namespaces on the Kubernetes cluster and store in state
+     * Get all secrets in the given namespace on the Kubernetes cluster and store in state
      */
     getSecret = () => {
         const target = `${this.state.server}/namespaces/${this.state.namespace}/secrets/${this.state.name}`;
@@ -164,11 +222,6 @@ class Secret extends React.Component {
         })
         .then(body => {
             let secret = body;
-            let decodedData = {};
-            Object.keys(body.data).forEach(key => {
-                decodedData[key] = atob(body.data[key]);
-            });
-            secret.data = decodedData;
             this.setState({secret, message: ''});
         })
         .catch(err => {
@@ -184,7 +237,7 @@ class Secret extends React.Component {
             return (
                 <li key={`${this.state.namespace}.${this.state.name}.${key}`}>
                     {key}: <br/>
-                    <textarea className="u-full-width" defaultValue={this.state.secret.data[key]} />
+                    <textarea className="u-full-width" defaultValue={atob(this.state.secret.data[key])} />
                 </li>
             )
         });
@@ -196,7 +249,17 @@ class Secret extends React.Component {
         }
 
         return (
-            <div className="container" id="secrets-list">
+            <div className="container" id="secret-data">
+                <div className="row">
+                    <div className="twelve columns">
+                        <button className="u-full-width button-primary" onClick={this.replaceSecret}>Submit your changes</button>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="twelve columns">
+                        <button className="u-full-width" onClick={this.getSecret}>Undo your changes</button>
+                    </div>
+                </div>
                 <ul>
                     {this.renderSecret()}
                 </ul>
@@ -205,6 +268,25 @@ class Secret extends React.Component {
                         <center>{this.state.message || ''}</center>
                     </div>
                 </div>
+                <form id="create-secret-data">
+                    <div className="row">
+                        <div className="four columns" align="left">
+                            <label htmlFor="newSecretDataKey">Key:</label>
+                            <input className="u-full-width" type="text" placeholder="New key" id="newSecretDataKey" onChange={this.inputUpdater('newDataKey')} value={this.state.newDataKey} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="twelve columns" align="left">
+                            <label htmlFor="newSecretDataValue">Value:</label>
+                            <textarea className="u-full-width" placeholder="New value" id="newSecretDataValue" onChange={this.inputUpdater('newDataValue')} value={this.state.newDataValue} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="two columns">
+                            <input type="button" className="u-full-width button-primary" id="addSecretDataButton" value="Add" onClick={this.addNewDataInMemory} />
+                        </div>
+                    </div>
+                </form>
             </div>
         )
     }
