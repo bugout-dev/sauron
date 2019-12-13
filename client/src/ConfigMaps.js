@@ -27,6 +27,25 @@ class ConfigMapsList extends React.Component {
         }
     }
 
+    updateNewConfigMap = (event) => {
+        this.setState({newConfigMap: event.target.value});
+    }
+
+    createNewConfigMap = () => {
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/configmaps`
+        fetch(target, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name: this.state.newConfigMap})
+        })
+        .then(this.transitioner(this.state.newConfigMap))
+        .catch(err => {
+            this.setState({message: `Error creating new ConfigMap (${this.state.newConfigMap}): ${JSON.stringify(err, null, 4)}`})
+        })
+    }
+
     /**
      * Get a list of namespaces on the Kubernetes cluster and store in state
      */
@@ -50,7 +69,7 @@ class ConfigMapsList extends React.Component {
             this.setState({configMaps});
         })
         .catch(err => {
-            this.setState({message: `Error listing Kubernetes configMaps for namespace=${this.state.namespace}: ${err}`})
+            this.setState({message: `Error listing Kubernetes configMaps for namespace=${this.state.namespace}: ${JSON.stringify(err, null, 4)}`})
         });
     }
 
@@ -80,6 +99,16 @@ class ConfigMapsList extends React.Component {
 
         return (
             <div className="container" id="configMaps-list">
+                <form id="create-configmap">
+                    <div className="row">
+                        <div className="nine columns" align="left">
+                            <input className="u-full-width" type="text" id="configMapNameInput" onChange={this.updateNewConfigMap} />
+                        </div>
+                        <div className="three columns" align="left">
+                            <input type="button" className="u-full-width button-primary" id="createConfigMapButton" value="Create" onClick={this.createNewConfigMap} />
+                        </div>
+                    </div>
+                </form>
                 <ul>
                     {this.renderConfigMaps()}
                 </ul>
@@ -101,6 +130,7 @@ class ConfigMap extends React.Component {
         name: null,
         configMap: {},
         message: '',
+        newConfigMap: '',
     }
 
     /**
