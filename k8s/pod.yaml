@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: sauron
+  namespace: sauron
   labels:
     app: sauron
 spec:
