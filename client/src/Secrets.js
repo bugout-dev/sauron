@@ -64,7 +64,7 @@ class SecretsList extends React.Component {
                 return {
                     name: secret.name,
                     namespace: secret.namespace,
-                    secretType: secret.secretyType,
+                    secretType: secret.secretType,
                 };
             })
             this.setState({secrets});
