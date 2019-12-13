@@ -9,7 +9,7 @@ If this sounds familiar, Sauron may be for you.
 
 Sauron looks like this:
 
-![Sauron can see your secrets](./img/sauron.png)
+![Sauron sees your secrets](./img/sauron.png)
 
 
 ## Take Sauron for a spin
@@ -18,7 +18,7 @@ If you don't have a Kubernetes cluster handy, you can always spin one up locally
 [`kind`](https://github.com/kubernetes-sigs/kind) or
 [`minikube`](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 
-Assuming you have a Kuberentes cluster on which you can try this out, point your `kubectl` at that
+Assuming you have a Kubernetes cluster on which you can try this out, point your `kubectl` at that
 cluster (`kubectl config use-context` if necessary) and run the following commands from the root of
 this repository:
 ```
