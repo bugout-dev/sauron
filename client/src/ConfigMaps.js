@@ -150,11 +150,67 @@ class ConfigMap extends React.Component {
         }
     }
 
+    configMapValueUpdater = (key) => {
+        const updater= (event) => {
+
+        }
+    }
+
+    inputUpdater = (key) => {
+        const updateStateKey = (event) => {
+            const update = {}
+            update[key] = event.target.value;
+            this.setState(update);
+        };
+        return updateStateKey;
+    }
+
+    addNewDataInMemory = () => {
+        if (this.state.configMap) {
+            const configMap = this.state.configMap;
+            if (!configMap.data) {
+                configMap.data = {};
+            }
+            configMap.data[this.state.newDataKey] = this.state.newDataValue;
+            this.setState({configMap, newDataKey: '', newDataValue: ''});
+        }
+    }
+
+    replaceConfigMap = () => {
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/configmaps/${this.state.name}`;
+        fetch(target, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                metadata: {
+                    namespace: this.state.namespace,
+                    name: this.state.name,
+                },
+                data: this.state.configMap.data || {},
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw Error(response.statusText);
+            }
+            return response.json();
+        })
+        .then(body => {
+            let configMap = body;
+            this.setState({configMap, message: ''});
+        })
+        .catch(err => {
+            this.setState({message: `Error retrieving Kubernetes configMap=${this.state.name} for namespace=${this.state.namespace}: ${err}`})
+        });
+    }
+
     /**
      * Get a list of namespaces on the Kubernetes cluster and store in state
      */
     getConfigMap = () => {
-        const target = `${this.state.server}/namespaces/${this.state.namespace}/configMaps/${this.state.name}`;
+        const target = `${this.state.server}/namespaces/${this.state.namespace}/configmaps/${this.state.name}`;
         fetch(target, {method: 'GET'})
         .then(response => {
             if (!response.ok) {
@@ -191,7 +247,17 @@ class ConfigMap extends React.Component {
         }
 
         return (
-            <div className="container" id="configMaps-list">
+            <div className="container" id="configmaps-list">
+                <div className="row">
+                    <div className="twelve columns">
+                        <button className="u-full-width button-primary" onClick={this.replaceConfigMap}>Submit your changes</button>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="twelve columns">
+                        <button className="u-full-width" onClick={this.getConfigMap}>Undo your changes</button>
+                    </div>
+                </div>
                 <ul>
                     {this.renderConfigMap()}
                 </ul>
@@ -200,6 +266,25 @@ class ConfigMap extends React.Component {
                         <center>{this.state.message || ''}</center>
                     </div>
                 </div>
+                <form id="create-configmap-data">
+                    <div className="row">
+                        <div className="four columns" align="left">
+                            <label htmlFor="newConfigMapDataKey">Key:</label>
+                            <input className="u-full-width" type="text" placeholder="New key" id="newConfigMapDataKey" onChange={this.inputUpdater('newDataKey')} value={this.state.newDataKey} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="twelve columns" align="left">
+                            <label htmlFor="newConfigMapDataValue">Value:</label>
+                            <textarea className="u-full-width" placeholder="New value" id="newConfigMapDataValue" onChange={this.inputUpdater('newDataValue')} value={this.state.newDataValue} />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="two columns">
+                            <input type="button" className="u-full-width button-primary" id="addConfigMapDataButton" value="Add" onClick={this.addNewDataInMemory} />
+                        </div>
+                    </div>
+                </form>
             </div>
         )
     }
