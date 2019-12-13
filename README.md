@@ -14,7 +14,7 @@ Sauron looks like this:
 
 ## Take Sauron for a spin
 
-If you don't have a Kubernetes cluster handy, you can always spin one up locally using
+If you don't have a Kubernetes cluster handy, you can spin one up locally using
 [`kind`](https://github.com/kubernetes-sigs/kind) or
 [`minikube`](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 
@@ -26,13 +26,13 @@ kubectl apply -f k8s/setup.yaml
 kubectl apply -f k8s/pod.yaml
 ```
 
-NOTE: This assumes that you do not already have a Kubernetes namespace called `sauron`. If you do
-already have such a namespace, you might want to change the namespace in the manifests above to one
-that doesn't already exist on your cluster. Also, we should be friends.
+NOTE: This assumes that you do not already have a Kubernetes namespace called `mordor` on your
+cluster. If you do already have such a namespace, you should change the namespace in the manifests
+above to one that doesn't already exist on your cluster. Also, we should be friends.
 
 To connect to Sauron:
 ```
-kubectl -n sauron port-forward sauron 1729
+kubectl -n mordor port-forward sauron 1729
 ```
 
 Now go here: [localhost:1729](http://localhost:1729).
