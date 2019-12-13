@@ -26,9 +26,9 @@ kubectl apply -f k8s/setup.yaml
 kubectl apply -f k8s/pod.yaml
 ```
 
-(NOTE: This assumes that you do not already have a Kubernetes namespace called `sauron`. If you do
+NOTE: This assumes that you do not already have a Kubernetes namespace called `sauron`. If you do
 already have such a namespace, you might want to change the namespace in the manifests above to one
-that doesn't already exist on your cluster. Also, we should be friends.)
+that doesn't already exist on your cluster. Also, we should be friends.
 
 To connect to Sauron:
 ```
