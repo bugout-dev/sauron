@@ -12,20 +12,42 @@ metadata:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cluster-dark-lord
+  name: sauron-read
 rules:
 - apiGroups: [""]
   resources: ["namespaces", "secrets", "configmaps"]
-  verbs: ["get", "watch", "list", "create", "update", "replace"]
+  verbs: ["get", "watch", "list"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: sauron-write
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["create", "update", "replace"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: sauron
+  name: sauron-read
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-dark-lord
+  name: sauron-read
+subjects:
+- kind: ServiceAccount
+  name: sauron
+  namespace: sauron
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sauron-write
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sauron-write
 subjects:
 - kind: ServiceAccount
   name: sauron
