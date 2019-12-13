@@ -99,7 +99,6 @@ app.post('/namespaces/:namespace/secrets', (req, res) => {
 
 app.put('/namespaces/:namespace/secrets/:name', (req, res) => {
     const {namespace, name} = req.params;
-    console.log(req.body)
     k8sApi.replaceNamespacedSecret(name, namespace, req.body)
         .then(k8sResponse => k8sResponse.body)
         .then(body => {
@@ -157,7 +156,6 @@ app.post('/namespaces/:namespace/configmaps', (req, res) => {
 
 app.put('/namespaces/:namespace/configmaps/:name', (req, res) => {
     const {namespace, name} = req.params;
-    console.log(req.body)
     k8sApi.replaceNamespacedConfigMap(name, namespace, req.body)
         .then(k8sResponse => k8sResponse.body)
         .then(body => {
