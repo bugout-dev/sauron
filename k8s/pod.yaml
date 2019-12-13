@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sauron
+  labels:
+    app: sauron
+spec:
+  containers:
+    - name: server
+      image: simiotics/sauron:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - name: sauron
+          containerPort: 1729
+  serviceAccountName: sauron

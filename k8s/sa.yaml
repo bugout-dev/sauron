@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sauron
+  namespace: sauron-test
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-dark-lord
+rules:
+- apiGroups: [""]
+  resources: ["namespaces", "secrets", "configmaps"]
+  verbs: ["get", "watch", "list", "create", "update", "replace"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sauron
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-dark-lord
+subjects:
+- kind: ServiceAccount
+  name: sauron
+  namespace: sauron-test

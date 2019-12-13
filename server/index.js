@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
 const k8s = require('@kubernetes/client-node');
+const gracefulShutdown = require('node-graceful-shutdown');
 
 const mappings = require('./mappings.js');
 
@@ -48,7 +49,7 @@ app.get('/namespaces', (req, res) => {
             res.send(namespaces);
         })
         .catch(err => {
-            console.log(`Error retrieving namespaces from Kubernetes API: ${err}`);
+            console.log(`Error retrieving namespaces from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -63,7 +64,7 @@ app.get('/namespaces/:namespace/secrets', (req, res) => {
             res.send(secrets);
         })
         .catch(err => {
-            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving Secrets from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -76,7 +77,7 @@ app.get('/namespaces/:namespace/secrets/:name', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -92,7 +93,7 @@ app.post('/namespaces/:namespace/secrets', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error creating Secret (${name}) in namespace=${namespace}: ${err}`);
+            console.error(`Error creating Secret (${name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -105,7 +106,7 @@ app.put('/namespaces/:namespace/secrets/:name', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error replacing Secret (${name}) in namespace=${namespace}: ${err}`);
+            console.error(`Error replacing Secret (${name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -120,7 +121,7 @@ app.get('/namespaces/:namespace/configmaps', (req, res) => {
             res.send(configMaps);
         })
         .catch(err => {
-            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving ConfigMaps from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -133,7 +134,7 @@ app.get('/namespaces/:namespace/configmaps/:name', (req, res) => {
             res.send(mappings.configMap(body));
         })
         .catch(err => {
-            console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${err}`);
+            console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -149,7 +150,7 @@ app.post('/namespaces/:namespace/configmaps', (req, res) => {
             res.send(mappings.configMap(body));
         })
         .catch(err => {
-            console.error(`Error creating ConfigMap (${req.body.name}) in namespace=${namespace}: ${err}`);
+            console.error(`Error creating ConfigMap (${req.body.name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -162,9 +163,21 @@ app.put('/namespaces/:namespace/configmaps/:name', (req, res) => {
             res.send(mappings.configMap(body));
         })
         .catch(err => {
-            console.error(`Error replacing ConfigMap (${name}) in namespace=${namespace}: ${err}`);
+            console.error(`Error replacing ConfigMap (${name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+gracefulShutdown.onShutdown('sauron-server', async () => {
+    return new Promise((resolve, reject) => {
+        console.log('Shutting down Sauron server...')
+        server.close((err) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve();
+        })
+    });
+});
