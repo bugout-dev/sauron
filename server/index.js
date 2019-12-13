@@ -92,7 +92,7 @@ app.post('/namespaces/:namespace/secrets', (req, res) => {
             res.send(mappings.secret(body));
         })
         .catch(err => {
-            console.error(`Error retrieving Secret (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            console.error(`Error creating Secret (${name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
@@ -121,6 +121,22 @@ app.get('/namespaces/:namespace/configmaps/:name', (req, res) => {
         })
         .catch(err => {
             console.error(`Error retrieving ConfigMap (${name}) from namespace=${namespace} from Kubernetes API: ${JSON.stringify(err, null, 4)}`);
+            res.sendStatus(500);
+        });
+});
+
+app.post('/namespaces/:namespace/configmaps', (req, res) => {
+    const {namespace} = req.params;
+    if (!req.body.name) {
+        return res.sendStatus(400);
+    }
+    k8sApi.createNamespacedConfigMap(namespace, {metadata: {name: req.body.name}})
+        .then(k8sResponse => k8sResponse.body)
+        .then(body => {
+            res.send(mappings.configMap(body));
+        })
+        .catch(err => {
+            console.error(`Error creating ConfigMap (${req.body.name}) in namespace=${namespace}: ${JSON.stringify(err, null, 4)}`);
             res.sendStatus(500);
         });
 });
